@@ -1,0 +1,10 @@
+h1
+  ' Mail to
+  = link_to 'Ruffnote', 'https://ruffnote.com/', target: '_blank'
+p.text-middle
+  = icon 'envelope-o fa-fw fa-4x'
+  = icon 'arrow-right fa-fw fa-2x', class: 'text-muted'
+  = image_tag 'logo.png', size: '100x100'
+p
+  = link_to 'Sign in with Ruffnote', '/auth/ruffnote', class: 'btn btn-primary btn-lg', data: { disable_with: 'Please wait...' }
+

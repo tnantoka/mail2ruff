@@ -1,0 +1,33 @@
+h2 Notes
+
+table.table.table-bordered.table-striped
+  thead
+    tr
+      th Title
+      th Address
+      th Page
+  tbody
+  - @addresses.each do |address|
+    - note = @notes.find { |n| n['id'] == address.note_id }
+    tr
+      td
+        = link_to note['title'], note['html_url'], target: '_blank'
+      td
+        code= address.email
+      td.js-container-page-id
+        p
+          a.btn.btn-xs.btn-default.pull-right.js-show-form-page-id[
+            href="#"
+            data-team="#{address.team}" data-note="#{address.note}" data-page-id="#{address.page_id}"
+          ]= icon('pencil')
+          => link_to address.page_url, target: '_blank', class: 'js-link-page-id' do
+            = address.page_path
+
+        = form_for address, html: { class: 'form-page-id js-form-page-id' } do |f|
+          = f.select :page_id,
+            [],
+            { include_blank: 'Root' },
+            class: 'select-page-id js-select-page-id'
+          =< f.button icon('check'), class: 'btn btn-sm btn-primary'
+        
+
