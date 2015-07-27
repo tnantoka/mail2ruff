@@ -13,19 +13,24 @@ class PostMailer < ApplicationMailer
     ruffnote = Ruffnote.new(token)
 
     title = email.subject
-    content = email.parts.first.try(:body).to_s
+    content = email.html_part.try(:body).to_s.strip
+    content = email.text_part.try(:body).to_s.strip if content.empty?
 
     if email.has_attachments?
-      #list = '<ul>'
+      dir = Rails.root.join('tmp', 'attachments', SecureRandom.uuid)
+      FileUtils.mkdir_p(dir)
+      list = "\n<ul>"
       email.attachments.each do |attachment|
-        logger.info ruffnote.attachment.inspect
-        #a = create_attachment(team, note, attachment)
-        #list << "<li><a href=\"#{a['html_url']}\">#{a['filename']}</a></li>"
+        path = dir.join(attachment.filename)
+        File.binwrite(path, attachment.body)
+        a = ruffnote.create_attachment(team, note, path.to_s, attachment.content_type)
+        list << "<li><a href=\"#{a['filelink']}\">#{a['filename']}</a></li>"
+        FileUtils.rm_rf(path)
       end
-      #list << '</ul>'
+      list << "</ul>\n"
     end
 
-    #content << "\n#{list}" 
+    content << "#{list}"
     page = ruffnote.create_page(team, note, title, content, parent)
   end
 end

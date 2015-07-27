@@ -1,5 +1,5 @@
 class Ruffnote
-  attr_accessor :client, :access_token
+  attr_accessor :client, :access_token, :token
 
   def initialize(token)
     self.client = OAuth2::Client.new(
@@ -8,6 +8,7 @@ class Ruffnote
       site: ENV['RUFFNOTE_SITE'],
       ssl: { verify: false }
     )
+    self.token = token
     self.access_token = OAuth2::AccessToken.new(client, token)
   end
 
@@ -33,9 +34,21 @@ class Ruffnote
     }).parsed
   end
 
-  def create_attachment(team, note, file)
-    json = @token.post("/api/v1/#{team}/#{note}/attachments", body: {
-      file: Faraday::UploadIO.new(file, 'image/png'),
+  def create_attachment(team, note, path, type)
+    c = OAuth2::Client.new(
+      ENV['RUFFNOTE_CLIENT_ID'],
+      ENV['RUFFNOTE_CLIENT_SECRET'],
+      site: ENV['RUFFNOTE_SITE'],
+      ssl: { verify: false }
+    ) do |stack|
+      stack.request :multipart
+      stack.request :url_encoded
+      stack.adapter Faraday.default_adapter
+    end
+    at = OAuth2::AccessToken.new(c, token)
+
+    json = at.post("/api/v1/#{team}/#{note}/attachments", body: {
+      file: Faraday::UploadIO.new(path, type),
     }).parsed
   end
 end
