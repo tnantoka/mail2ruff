@@ -24,7 +24,12 @@ class PostMailer < ApplicationMailer
         path = dir.join(attachment.filename)
         File.binwrite(path, attachment.body)
         a = ruffnote.create_attachment(team, note, path.to_s, attachment.content_type)
-        list << "<li><a href=\"#{a['filelink']}\">#{a['filename']}</a></li>"
+
+        replaced = content.gsub!(/<img src="#{attachment.url}/, "<img src=\"#{a['filelink']}")
+        unless replaced
+          list << "<li><a href=\"#{a['filelink']}\">#{a['filename']}</a></li>"
+        end
+
         FileUtils.rm_rf(path)
       end
       list << "</ul>\n"
