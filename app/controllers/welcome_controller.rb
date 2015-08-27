@@ -6,7 +6,7 @@ class WelcomeController < ApplicationController
   end
 
   def dashboard
-    @notes = client.managed_notes[0..2]
+    @notes = client.managed_notes
     @addresses = @notes.map do |note|
       Address.find_or_create_by_note(note, current_user)
     end
